@@ -1,0 +1,55 @@
+\documentclass[
+12pt, 
+spanish, 
+singlespacing,
+headsepline
+]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,% hyperlinks will be coloured
+  linkcolor=blue,% hyperlink text will be blue
+}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{float}
+\usepackage{underscore}
+\usepackage{graphicx}
+%Path relative to the .tex file containing the \includegraphics command
+\graphicspath{ {./images} }
+%\usepackage[export]{adjustbox} % Enable option "frame" for figures
+\usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
+\newcommand{\image}[2]{
+\begin{figure}[H]
+	\caption{#1}
+	\centering
+	\includegraphics[width=1\textwidth]{#2}
+\end{figure}
+}
+\newcommand{\smallimage}[2]{
+\begin{figure}[H]
+	\caption{#1}
+	\centering
+	\includegraphics[width=0.5\textwidth]{#2}
+\end{figure}
+}
+\newcommand{\code}[1]{\textit{\texttt{#1}}}
+
+\author{Marcos Gutiérrez Alonso}
+\title{Memoria de las prácticas de Inteligencia de Negocio}
+\begin{document}
+\begin{titlepage}
+	\maketitle
+	{\hypersetup{linkcolor=black}
+	\tableofcontents
+	}
+\end{titlepage}
+\section{Práctica 5}
+\section{Práctica 6}
+\section{Práctica R}
+\section{Práctica 8}
+MS -\> Month Start
+
+\end{document}

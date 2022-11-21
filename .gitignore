@@ -1,0 +1,17 @@
+**/venv/
+**/.venv/
+**/.idea/
+**/__pycache__/
+**/*.pdf
+**/*.odt
+**/.DS_Store
+
+**/.xdp-*
+**/*.aux
+**/*.log
+**/*.tex.bak
+**/*.out
+**/*.toc
+**/*.gz
+
+**/Practica\ 6/2nd_test/*
