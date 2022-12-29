@@ -286,7 +286,53 @@ Después, se realiza un análisis de componentes principales (PCA) en el dataset
 
 \section{Práctica 7: Anomalías}
 
+\subsection{Parte 1: KNN}
+Podemos usar KNN para analizar las anomalías y decidir un "threshold" a partir del cual decimos que hay una alta probabilidad de que haya una avería:
 
+\smallimage{Anomalías con KNN}{PL7/Anomaly.png}
+
+Usando este método, la avería se detecta en la fecha \code{2004-02-16 04:42:39}
+
+\subsection{Parte 2: LOF}
+Otro método es el de \code{Local Outlier Factor}:
+
+\smallimage{Anomalías con LOF}{PL7/AnomalyLOF.png}
+
+En este caso, se detecta la avería en la fecha \code{2004-02-16 02:22:39}
+
+\subsection{Parte 3: SVM}
+En este apartado analizaremos la avería con One-Class SVM:
+
+\smallimage{Anomalías con SVM}{PL7/AnomalySVM.png}
+
+Con SVM se detecta la avería en la fecha \code{2004-02-16 04:32:39}
+
+\subsection{Parte 4: Isolation Forest}
+
+En este caso usamos ISOF (ISOlation Forest) para predecir el día de la avería:
+
+\smallimage{Anomalías con SVM}{PL7/AnomalyISOF.png}
+
+Usando este método, la avería se detecta en la fecha \code{2004-02-15 11:42:39}
+
+\subsection{Conclusión}
+
+\begin{center}
+\begin{tabular}{ |c|c|c| }
+ \hline
+ Método & Día de avería & Hora de avería \\ 
+ \hline
+ ISOF & 15 & 11:42:39 \\
+ LOF & 16 & 02:22:39 \\
+ SVM & 16 & 04:32:39 \\
+ KNN & 16 & 04:42:39 \\
+ \hline
+\end{tabular}
+\end{center}
+
+El claro ganador es el método ISOF, llegando a predecir la avería con más de 12h de antelación con respecto al siguiente mejor método.
+
+El resto de métodos obtienen un resultado similar, aunque LOF saca un par de horas de ventaja.
 
 \section{Práctica 8}
 MS -\> Month Start
