@@ -37,7 +37,7 @@ headsepline
 }
 \newcommand{\code}[1]{\textit{\texttt{#1}}}
 
-\author{Marcos Gutiérrez Alonso}
+\author{Marcos Gutiérrez Alonso - UO272509}
 \title{Memoria de las prácticas de Inteligencia de Negocio}
 \begin{document}
 \begin{titlepage}
@@ -47,9 +47,257 @@ headsepline
 	}
 \end{titlepage}
 \section{Práctica 5}
-\section{Práctica 6}
-\section{Práctica R}
+\subsection{Explicación}
+En esta práctica usamos el dataset \textbf{STAR}, que es una serie de datos representando los resultados de distintos niños en los diferentes cursos y asignaturas, así como el número de profesores por aula y datos similares.
+
+El objetivo de la práctica es demostrar si existe alguna relación entre las variables y los resultados.
+\\
+
+Primeramente, se procesan varias columnas del conjunto de datos y se añaden nuevas columnas al mismo. Para ello se utilizan dos objetos de la librería \code{pyspark.ml.feature}, \code{StringIndexer} y \code{OneHotEncoder}, que se añaden a un objeto \code{Pipeline} y se ajustan al conjunto de datos original. Luego, se aplican las transformaciones del \code{Pipeline} al conjunto de datos y se obtiene un nuevo conjunto de datos con las columnas procesadas.
+\\
+
+A continuación, se convierte el conjunto de datos de Spark a un objeto de tipo \code{pandas.DataFrame} con la función \code{toPandas}
+\\
+
+Para obtener una representación gráfica de los datos, utilizaré un \code{boxplot}:
+\smallimage{Read K en función de Star K}{PL5.1k.png}
+\smallimage{Read 1 en función de Star 1}{PL5.1-1.png}
+\smallimage{Read 2 en función de Star 2}{PL5.1-2.png}
+\smallimage{Read 3 en función de Star 3}{PL5.1-3.png}
+En ellos se pueden ver representados los cuatro tipos de Read (Read k, 1, 2 y 3) en función de los correspondientes tipos de Star.
+
+A partir de esto, se puede deducir que no existe mucha correlación entre los datos mencionados, por lo que el resultado que obtendremos más adelante no será especialmente bueno.
+
+Para abstraer la tarea de la predicción, he preparado la función \code{predict_and_evaluate}, que, a partir de un conjunto de datos, una lista de columnas de entrada y una columna de etiquetas, entrena un modelo de regresión lineal y evalúa su rendimiento. 
+
+Esta función utiliza varios objetos de la librería \code{pyspark.ml} para realizar las tareas de imputación de valores perdidos, creación de un vector de características a partir de las columnas de entrada, entrenamiento del modelo y evaluación del mismo.
+
+Además, volvemos a utilizar un \code{Pipeline} para hacer las tareas mencionadas.
+Esta función devuelve el R², el valor real y el predicho.
+\\
+
+Finalmente, se llama a la función \code{predict_and_evaluate} pasándole el conjunto de datos procesado y una lista de columnas de entrada, y se imprimen el valor del coeficiente de determinación R² obtenido y las medias de las etiquetas y predicciones.
+
+\subsection{Resultados y conclusión}
+El programa devuelve:
+\\
+\code{R² de train vs test: 0.0678\\
+Error relativo de las medias: 0.0846\% (aka el acierto es 99.9154\%)} 
+\\
+
+En este caso, el valor de R² obtenido es de 0.0678, lo que sugiere que el modelo tiene una mala capacidad de predicción. Esto puede deberse a diversos factores, como por ejemplo la falta de relación entre las variables de entrada y la variable de etiquetas, la presencia de ruido o de outliers en el conjunto de datos, o la existencia de variables de entrada que no son relevantes para la predicción.
+
+Sin embargo, el código también calcula el 'Error relativo de las medias', que es el porcentaje de diferencia entre la media de las etiquetas y la media de las predicciones. Este valor es del 0.0846\%, lo que indica que las medias de las etiquetas y las predicciones son muy similares. Esto puede deberse a que el modelo está prediciendo valores cercanos a la media del conjunto de datos, incluso si su capacidad de predicción en términos de R² es baja.
+
+En conclusión, aunque el modelo de regresión lineal tiene una mala capacidad de predicción en términos de R², las predicciones obtenidas tienen un error relativo en las medias muy pequeño.
+
+
+\section{Práctica 6: R}
+El objetivo de esta práctica es aprender R, usando además dos bibliotecas, MASS y lattice, que proporcionan diversas funciones y herramientas para realizar análisis estadísticos.
+
+\subsection{Ejercicio 1}
+Primero generamos dos conjuntos de datos aleatorios (siguiendo una distribución normal), x e y, y utiliza la función truehist para representar un histograma conjunto de estos datos.
+
+\smallimage{Normal representado con un histograma}{R/rnorm.png}
+
+
+Utiliza la función kde2d para calcular la densidad conjunta de x e y, y luego utiliza la función contour para representar un diagrama de contornos de esta densidad.
+
+\smallimage{kde2d representado con un diagrama de contornos}{R/contourkde2d.png}
+
+Utiliza la función image para representar un mapa de calor de la densidad conjunta de x e y.
+
+\smallimage{kde2d representado con un mapa de calor}{R/imagedd.png}
+
+Genera dos conjuntos de datos aleatorios más grandes para intentar que el gráfico sea aproximadamente circular, y utiliza la función kde2d y contour para graficar un diagrama de contornos de la densidad conjunta de estos datos.
+
+\smallimage{kde2d representado con un diagrama de contornos más circular}{R/contourkde2d-big.png}
+
+Utiliza la función lm para ajustar un modelo de regresión lineal a un conjunto de datos y luego utiliza la función summary para resumir el resultado del modelo, con el resultado:
+\\
+\code{Call:\\
+lm(formula = y ~ x, data = dum)\\
+\\
+Residuals:\\
+     Min       1Q   Median       3Q      Max \\
+-14.7633  -3.2313   0.4649   4.8384  10.2893 \\
+\\
+Coefficients:\\
+            Estimate Std. Error t value Pr(>|t|)   \\ 
+(Intercept)   0.8400     1.9702   0.426    0.672    \\
+x             0.8402     0.1654   5.080  1.1e-05 ***\\
+---\\
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\\
+\\
+Residual standard error: 5.812 on 37 degrees of freedom\\
+Multiple R-squared:  0.4109,	Adjusted R-squared:  0.395 \\
+F-statistic: 25.81 on 1 and 37 DF,  p-value: 1.101e-05}
+\\
+
+Utiliza la función lm para ajustar un modelo de regresión lineal ponderado a un conjunto de datos y luego utiliza la función summary para resumir el resultado del modelo.
+\\
+\code{Call:\\
+lm(formula = y ~ x, data = dum, weights = 1/w²)\\
+\\
+Weighted Residuals:\\
+    Min      1Q  Median      3Q     Max \\
+-1.8927 -0.5056  0.1316  0.7558  1.7499 \\
+\\
+Coefficients:\\
+            Estimate Std. Error t value Pr(>|t|)    \\
+(Intercept)   0.1544     0.8363   0.185    0.855    \\
+x             0.9086     0.1338   6.791  5.4e-08 ***\\
+---\\
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\\
+\\
+Residual standard error: 0.9082 on 37 degrees of freedom\\
+Multiple R-squared:  0.5548,	Adjusted R-squared:  0.5428 \\
+F-statistic: 46.11 on 1 and 37 DF,  p-value: 5.396e-08}
+\\
+
+Utiliza la función loess para ajustar un modelo de suavizado local a un conjunto de datos y luego grafica el resultado junto con los modelos de regresión lineal anteriores.
+
+\smallimage{Regresión lineal sobre el conjunto de datos}{R/linearregression.png}
+
+Utiliza la función plot para graficar los valores ajustados del modelo de regresión lineal contra los residuos.
+
+\subsection{Ejercicio 2}
+Este código realiza un análisis de regresión lineal en un conjunto de datos que presenta problemas de heterocedasticidad. Heterocedasticidad es un término utilizado para describir la situación en la que la varianza de los residuos (errores) de un modelo de regresión no es constante a lo largo del rango de las variables predictoras. Esto puede afectar la precisión y la estabilidad de los resultados del modelo.
+\\
+
+Para abordar este problema, el código genera un conjunto de datos sintético con dos variables, x e y, utilizando la función seq para crear una secuencia de números, la función sin para calcular el seno de x/20 y la función rnorm para generar una distribución normal aleatoria. Luego utiliza la función lm para ajustar un modelo de regresión lineal simple a estos datos y guarda el resultado en la variable fm.
+
+Después, se utiliza la función lm para ajustar un modelo de regresión lineal ponderado a los datos, utilizando la variable w como los pesos para cada observación. Esto puede ayudar a mejorar la precisión del modelo al asignar más peso a las observaciones con menor varianza y menos peso a las observaciones con mayor varianza. El resultado del modelo ponderado se guarda en la variable fm1.
+
+También se utiliza la función loess para ajustar un modelo de suavizado local a los datos, y se guarda el resultado en la variable lrf.
+\\
+
+Finalmente, se utiliza la función \code{plot} para representar x e y, y luego utiliza la función \code{lines} para trazar la curva ajustada por el modelo de suavizado local y la función \code{abline} para trazar las rectas ajustadas por los modelos de regresión lineal. Esto permite comparar los resultados de los diferentes modelos y evaluar cómo se ajustan a los datos.
+
+\image{Modelos de ajuste lineal}{R/ej2-linreg.png}
+
+\subsection{Ejercicio 3 - Elevación con respecto al tiempo}
+El dataframe hills contiene información sobre tres variables o características:
+\begin{itemize}
+\item \emph{dist}: la distancia recorrida en millas
+\item \emph{climb}: la pendiente de la ruta en pies por milla
+\item \emph{time}: el tiempo en minutos que se tarda en completar la ruta
+\end{itemize}
+
+Utilizando la función \code{pairs}, podemos dibujar una matriz de gráficos de dispersión con todas las combinaciones posibles de variables del conjunto de datos.
+
+\image{Matriz de gráficos de dispersión}{R/multiplot.png}
+
+En el siguiente snippet de código, hacemos \code{attach} al dataset \emph{hills}, lo que hace que sus variables sean directamente accesibles sin necesidad de hacer \code{hills\$variable}.
+
+Seguidamente, hacemos un \code{plot(dist,time)}, que muestra la relación entre las variables dist y time del dataset \emph{hills}. El gráfico de dispersión es útil para explorar la correlación entre las variables y para identificar patrones o tendencias en los datos.
+\\
+
+A continuación haremos y dibujaremos dos regresiones lineales:
+\begin{itemize}
+\item \code{abline(lm(time ~ dist))}: Traza una línea que será resultado de ajustar un modelo de regresión lineal (lm) a las variables time y dist.
+\item \code{abline(lqs(time ~ dist),lty=3,col=4)}: En este caso, la línea trazada es el resultado de ajustar un modelo lineal cuantílico (lqs) a las variables dist y time.
+\end{itemize}
+
+\smallimage{Modelos lineales tiempo-distancia}{R/hillslm.png}
+
+
+\subsection{Ejercicio 4: Boxplots}
+\subsubsection{Intro al dataset}
+Ahora estamos utilizando los datos del dataset \emph{michelson}, que consiste en un conjunto de mediciones realizadas por Albert Michelson en 1878 con el objetivo de determinar la velocidad de la luz en el aire.
+
+El dataset consta de 20 observaciones e incluye las siguientes variables:
+\begin{itemize}
+\item \emph{Expt}: El número del experimento (de 1 a 5).
+\item \emph{Run}: El número del intento dentro de cada experimento.
+\item \emph{Speed}: velocidad de la luz medida (en millones de metros por segundo)
+\end{itemize}    
+
+Utilizando estos datos, hacemos un \code{plot} de \code{Expt} y \code{Run}. R automáticamente detecta el tipo de datos que estamos intentando representar y cambia el tipo de gráfico a uno que clasifica los valores en función de la variable \code{Run}:
+
+\smallimage{Gráfico de clasificación}{R/heat.png}
+
+\subsubsection{Boxplot}
+Ahora haremos el plot de \code{Expt} y \code{Speed}, y R automáticamente dibujará un diagrama de cajas:
+
+\smallimage{Diagrama de cajas experimento vs. velocidad}{R/boxplot.png}
+
+\subsection{Ejercicio 5: Proyecciones}
+\subsubsection{Introducción a PCA con iris3}
+Cargamos el dataset \emph{iris3}, realizamos un análisis de componentes principales y dibujamos el resultado. 
+
+También calculamos y mostramos los PCA de cada variable en cada componente principal y grafica las coordenadas de cada observación en el espacio de componentes principales, añadiendo etiquetas a cada observación.
+
+\smallimage{Gráfico de clasificación con PCA}{R/svc.png}
+
+\subsubsection{Crabs: PCA}
+Este fragmento de código realiza un análisis de componentes principales en el dataset \emph{crabs}, calcula el PCA de cada variable y dibuja el resultado utilizando las primeras dos componentes principales. También añade etiquetas a cada observación en el gráfico.
+
+\image{Visualización PCA de \emph{crabs}}{R/bob.png}
+
+Y ahora podemos subdividir por categorías (sexo y color), para generar un gráfico más granulado como el siguiente:
+
+\image{Visualización PCA por categorías de \emph{crabs}}{R/more_crabs.png}
+
+\subsubsection{Crabs: Sammon}
+
+\smallimage{Visualización sammon de \emph{crabs}}{R/sammon.png}
+
+\subsubsection{Crabs: MDS}
+\smallimage{Visualización MDS de \emph{crabs}}{R/mds_crabs.png}
+
+\subsection{Ejercicio 7: Dendogramas}
+\subsubsection{Clustering jerarquico}
+En esta parte, realizamos un agrupamiento jerárquico en el dataset "swiss". Luego, utilizamos la función \code{cutree()} para cortar el dendrograma en 3 grupos y muestra el resultado.
+
+Existen tres métodos de enlace comunes que se pueden utilizar al hacer un cluster:
+\begin{itemize}
+\item \emph{single}: Este método de enlace combina dos clusters formando un nuevo cluster que contiene a los dos clusters originales, eligiendo como distancia entre ellos la distancia mínima entre dos observaciones de diferentes clusters.
+\item \emph{average}: Este método de enlace combina dos clusters formando un nuevo cluster que contiene a los dos clusters originales, eligiendo como distancia entre ellos el promedio de todas las distancias entre dos observaciones de diferentes clusters.
+\item \emph{complete}: Este método de enlace combina dos clusters formando un nuevo cluster que contiene a los dos clusters originales, eligiendo como distancia entre ellos la distancia máxima entre dos observaciones de diferentes clusters.
+\end{itemize}
+
+\smallimage{Dendograma con el método \emph{single}}{R/cluster_dendogram.png}
+\smallimage{Dendograma con el método \emph{average}}{R/cluster_average.png}
+\smallimage{Dendograma con el método \emph{complete}}{R/cluster_complete.png}
+
+Por lo general, el método de enlace \emph{single} suele ser el más adecuado para datos que tienen una distribución muy asimétrica, mientras que el método de enlace \emph{average} suele ser el más adecuado para datos que tienen una distribución más simétrica. 
+
+El método de enlace \emph{complete} suele ser el menos utilizado de los tres, ya que puede ser menos robusto a la presencia de outliers o valores atípicos en los datos. Además, este método de enlace puede producir clusters muy grandes si existen muchas observaciones con valores muy altos o muy bajos, lo que puede dificultar la interpretación del resultado.
+
+\subsection{Ejercicio 8: Uso de PCA para visualizar los resultados del clustering}
+Para visualizar esto, se realiza un agrupamiento jerárquico en el dataset "swiss" utilizando el método de enlace "average", luego se corta el dendrograma en 3 grupos y utiliza el resultado para inicializar el algoritmo de k-means. 
+
+Después, se realiza un análisis de componentes principales (PCA) en el dataset , y se dibuja el resultado del agrupamiento k-means utilizando las primeras dos componentes principales. Finalmente, utiliza la función \code{identify()} para permitir identificar las observaciones en el gráfico.
+
+\smallimage{PCA + clustering}{R/swiss_pca.png}
+
+
+\subsection{Ejercicio 9}
+\begin{enumerate}
+\item Para encontrar las asociaciones más relevantes entre los productos en el dataset \emph{Groceries}, se puede utilizar el algoritmo \code{apriori()} con diferentes valores de soporte mínimo y confianza. El soporte mínimo se refiere a la frecuencia mínima con la que debe ocurrir una asociación en el dataset para ser considerada relevante. La confianza se refiere a la probabilidad de que ocurra el antecedente dado que ocurre el consecuente. Al aumentar el soporte mínimo o la confianza, se eliminarán más reglas y se obtendrán asociaciones más fuertes.
+
+\item Para eliminar las reglas redundantes, puedes utilizar la función \code{eliminateRedundancy()} de la librería arules, que elimina las reglas que son subconjuntos de otras reglas.
+
+\item Para mostrar un gráfico de matriz con antecedentes agrupados para las reglas con confianza mayor que 0.8, se puede utilizar la función \code{aggregate()} para agrupar las reglas por antecedente, luego usar la función \code{inspect()} para mostrar el resultado
+
+\item Para hacer una visualización de grafo para las 10 y 100 reglas de mayor lift, se puede usar la función \code{plot()} con el argumento \code{type = "graph"}. Para mostrar la importancia de la asociación mediante flechas y nodos, se puede usar el argumento \code{edge.label} para mostrar el valor de lift en cada flecha, y el argumento \code{vertex.label} para mostrar el soporte en cada nodo
+\end{enumerate}
+
+\section{Práctica 7: Anomalías}
+
+
+
 \section{Práctica 8}
 MS -\> Month Start
+
+"La serie que es mejor predecir es la del logaritmo de los datos" - What??
+
+ARIMA:
+- Modelo autoregresivo - "Voy a hacer lo de mañana sabiendo lo de hoy" (orden 1, orden 2 sería ayer y hoy, orden 3 sería anteayer, ayer y hoy ...)
+- Media móvil - Anticipas el error (media de los errores) y lo sumas a todos los días
+
+Arima se puede mejorar con predicción seasonal
+SARIMAX = Seasonal - ARIMA - X
 
 \end{document}

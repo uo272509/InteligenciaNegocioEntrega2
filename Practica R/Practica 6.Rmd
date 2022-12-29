@@ -1,0 +1,533 @@
+
+---
+title: "Practica 6"
+output:
+  html_document:
+    toc: true
+---
+
+
+```{r}
+library(MASS)
+library(lattice)
+```
+
+
+```{r}
+# ----------------------------------------------------
+# ANALISIS GRAFICO BASICO
+# ----------------------------------------------------
+
+# Densidad conjunta de dos variables
+x <- rnorm(1000)
+y <- rnorm(1000)
+truehist(c(x,y+3),nbins=25)
+
+```
+
+
+```{r}
+contour(dd <- kde2d(x,y))
+```
+
+
+```{r}
+image(dd)
+```
+
+
+```{r}
+# ----------------------------------------------------
+# Ejercicio 1: Histogramas y diagramas de contornos. Aumentar el tamaño de muestra hasta que el diagrama de contorno sea aproximadamente circular
+# ----------------------------------------------------
+
+
+x <- rnorm(90000)
+y <- rnorm(90000)
+contour(dd <- kde2d(x,y))
+```
+
+
+```{r}
+# ----------------------------------------------------
+# Regresión lineal en problemas no homocedásticos
+# ----------------------------------------------------
+x <- seq(1,20,0.5)
+w <- 1+x/2
+y <- x+w*rnorm(x)
+dum <- data.frame(x,y,w)
+rm(x,y,w)
+
+fm <- lm(y ~ x, data = dum)
+summary(fm)
+```
+
+
+```{r}
+fm1 <- lm(y ~ x,data=dum,weight=1/w^2)
+summary(fm1)
+```
+
+
+```{r}
+lrf <- loess(y ~ x, dum)
+attach(dum)
+plot(x,y)
+lines(spline(x,fitted(lrf)),col=2)
+abline(0,1,lty=3,col=3)
+abline(fm,col=4)
+abline(fm1,lty=4,col=5)
+```
+
+
+```{r}
+plot(fitted(fm),resid(fm),
+	xlab="Valores ajustados",
+	ylab="Residuos")
+```
+
+
+```{r}
+# ----------------------------------------------------
+# Ejercicio 2: Regresión lineal en problemas no homocedásticos: analiza el siguiente problema
+# ----------------------------------------------------
+
+x <- seq(1,200,0.5)
+w <- 10+10*sin(x/20)
+y <- sqrt(x)+w*rnorm(x)
+dum <- data.frame(x,y,w)
+rm(x,y,w)
+
+fm <- lm(y ~ x, data = dum)
+fm1 <- lm(y ~ x,data=dum,weight=1/w^2)
+lrf <- loess(y ~ x, dum)
+
+attach(dum)
+plot(x,y)
+lines(spline(x,fitted(lrf)),col=2)
+abline(0,1,lty=3,col=3)
+abline(fm,col=4)
+abline(fm1,lty=4,col=5)
+```
+
+
+```{r}
+# ----------------------------------------------------
+# GRAFICAS CON MULTIPLES VARIABLES
+# ----------------------------------------------------
+
+hills
+pairs(hills)
+```
+
+
+```{r}
+attach(hills)
+plot(dist,time)
+# Identify solo funciona con R interactivo
+# identify(dist,time,row.names(hills))
+abline(lm(time ~ dist))
+abline(lqs(time ~ dist),lty=3,col=4)
+# detach()
+```
+
+
+```{r}
+# ----------------------------------------------------
+# Ejercicio 3: Analiza el tiempo de la ruta frente a la pendiente (time ~ climb)
+# ----------------------------------------------------
+attach(michelson)
+plot(Expt, Run,
+	main="Run",
+	xlab="Numero del experimento")
+```
+
+
+```{r}
+# ----------------------------------------------------
+# Boxplots (diagramas de caja)
+# ----------------------------------------------------
+
+attach(michelson)
+plot(Expt, Speed,
+	main="Velocidad de la luz",
+	xlab="Numero del experimento")
+```
+
+
+```{r}
+# ----------------------------------------------------
+# Ejercicio 4: Boxplots: analizar Speed frente a Run
+# ----------------------------------------------------
+
+```
+
+
+```{r}
+# ----------------------------------------------------
+# PROYECCIONES (PCA, MDS, etc)
+# ----------------------------------------------------
+
+data(iris3)
+ir <- rbind(iris3[,,1], iris3[,,2], iris3[,,3])
+ir.species <- factor(c(rep("s", 50), rep("c", 50),rep("v",50)))
+ir.pca <- princomp(log(ir), cor = T)
+summary(ir.pca)
+plot(ir.pca)
+loadings(ir.pca)
+ir.pc <- predict(ir.pca)
+eqscplot(ir.pc[,1:2],type="n",
+	xlab="primera componente principal",
+	ylab="segunda componente principal")
+text(ir.pc[,1:2],labels=as.character(ir.species),
+	col=3+as.integer(ir.species))
+```
+
+
+```{r}
+# Visualización PCA de crabs
+lcrabs <- log(crabs[, 4:8])
+lcrabs.grp <- factor(c("B", "b", "O", "o")[rep(1:4, each = 50)])
+lcrabs.pca <- princomp(lcrabs)
+loadings(lcrabs.pca)
+lcrabs.pc <- predict(lcrabs.pca)
+dimnames(lcrabs.pc) <- list(NULL, paste("PC", 1:5, sep = ""))
+
+# El gráfico de las primeras dos componentes no muestra apenas información útil
+eqscplot(lcrabs.pc[,1:2],type="n",
+	xlab="primera componente principal",
+	ylab="segunda componente principal")
+text(lcrabs.pc[,1:2],labels=as.character(lcrabs.grp),
+	col=3+as.integer(lcrabs.grp))
+```
+
+
+```{r}
+	
+# El gráfico de las primeras tres componentes es más informativo
+splom(~ lcrabs.pc[,1:3], groups = lcrabs.grp,
+		panel=panel.superpose,
+		key=list(text=list(c("Macho azul", "Hembra azul",
+							 "Macho naranja", "Hembra naranja")),
+				 points=Rows(trellis.par.get("superpose.symbol"),1:4),
+				 columns=4)
+	 )
+# Otra forma de mostrar la misma información
+sp <- crabs$sp; levels(sp) <- c("Azul","Naranja")
+sex <- crabs$sex; levels(sex) <- c("Hembra","Macho")
+splom(~ lcrabs.pc[,1:3] | sp*sex, cex=0.5, pscales=0)
+```
+
+
+```{r}
+
+ir.scal <- cmdscale(dist(ir),k=2,eig=T)
+ir.scal$points[,2] <- -ir.scal$points[,2]
+eqscplot(ir.scal$points,type="n")
+text(ir.scal$points,labels=as.character(ir.species),
+	col=3+as.integer(ir.species),cex=0.8)
+
+```
+
+
+```{r}
+
+ir.sam <- sammon(dist(ir[-143,]))
+eqscplot(ir.sam$points,type="n")
+text(ir.sam$points,labels=as.character(ir.species[-143]),
+	col=3+as.integer(ir.species),cex=0.8)
+```
+
+
+```{r}
+
+cr.scale <- 0.5 * log(crabs$CL * crabs$CW)
+slcrabs <- lcrabs - cr.scale
+cr.means <- matrix(0,2,5)
+cr.means[1,] <- colMeans(slcrabs[crabs$sex == "F", ])
+cr.means[2,] <- colMeans(slcrabs[crabs$sex == "M", ])
+dslcrabs <- slcrabs - cr.means[as.numeric(crabs$sex),]
+
+```
+
+
+```{r}
+# ----------------------------------------------------
+# Ejercicio 5: Proyecciones. Genera las visualizaciones MDS, Sammon y PCA del problema "crabs"
+# ----------------------------------------------------
+
+
+```
+
+
+```{r}
+# ----------------------------------------------------
+# MAPAS AUTOORGANIZADOS
+# ----------------------------------------------------
+
+library(class)
+gr <- somgrid(topo="hexagonal")
+crabs.som <- batchSOM(lcrabs,gr,c(4,4,2,2,1,1,1,0,0))
+```
+
+
+```{r}
+# Diagrama de estrella
+plot(crabs.som)
+```
+
+
+```{r}
+# Diagrama de círculos
+bins <- as.numeric(knn1(crabs.som$code, lcrabs, 0:47))
+plot(crabs.som$grid, type = "n")
+symbols(crabs.som$grid$pts[, 1], crabs.som$grid$pts[, 2],
+        circles = rep(0.4, 48), inches = FALSE, add = TRUE)
+text(crabs.som$grid$pts[bins, ] + rnorm(400, 0, 0.1),
+     as.character(lcrabs.grp))
+```
+
+
+```{r}
+# ----------------------------------------------------
+# Ejercicio 6: (OPCIONAL) Mapas autoorganizados: Genera los diagramas de estrella y de círculos para el problema IRIS
+# ----------------------------------------------------
+
+```
+
+
+```{r}
+# ----------------------------------------------------
+# CLUSTERING JERARQUICO
+# ----------------------------------------------------
+data(swiss)
+swiss.x <- as.matrix(swiss[,-1])
+h <- hclust(dist(swiss.x),method="single")
+plot(h)
+cutree(h,3)
+```
+
+
+```{r}
+# ----------------------------------------------------
+# Ejercicio 7: Dendogramas: Comparar los resultados del clustering jerárquico con enlaces simple, 
+# completo y promedio ("single","complete","average") para segmentaciones en 3 y 5 clusters
+# ----------------------------------------------------
+
+hc <- hclust(dist(swiss.x),method="complete")
+ha <- hclust(dist(swiss.x),method="average")
+
+plot(ha)
+```
+
+
+```{r}
+plot(hc)
+```
+
+
+```{r}
+# ----------------------------------------------------
+# Uso de PCA para visualizar los resultados del clustering
+# ----------------------------------------------------
+
+h <- hclust(dist(swiss.x), method = "average") 
+initial <- tapply(swiss.x, list(rep(cutree(h, 3),
+	ncol(swiss.x)), col(swiss.x)), mean) 
+dimnames(initial) <- list(NULL, dimnames(swiss.x)[[2]]) 
+km <- kmeans(swiss.x, initial)
+swiss.pca <- princomp(swiss.x)
+swiss.px <- predict(swiss.pca) 
+dimnames(km$centers)[[2]] <- dimnames(swiss.x)[[2]] 
+swiss.centers <- predict(swiss.pca, km$centers) 
+eqscplot(swiss.px[, 1:2], type = "n",
+	xlab = "primera componente principal",
+	ylab = "segunda componente principal") 
+text(swiss.px[, 1:2], labels = km$cluster) 
+points(swiss.centers[,1:2], pch = 3, cex = 3) 
+identify(swiss.px[, 1:2], cex = 0.5)
+```
+
+
+```{r}
+# ----------------------------------------------------
+# Ejercicio 8: (OPCIONAL) Uso de PCA para visualizar los resultados del clustering: 
+# Repite el gráfico con la segmentación de los cantones suizos para los enlaces simple y completo
+# ----------------------------------------------------
+```
+
+
+```{r}
+# ----------------------------------------------------
+# GRAFICOS DE MOSAICO (Solo ejemplo; sin ejercicio asociado)
+# ----------------------------------------------------
+
+caith1 <- as.matrix(caith)
+names(dimnames(caith1)) <- c("ojos", "pelo") 
+mosaicplot(caith1, color = T)
+
+library(stats)
+House <- xtabs(Freq ~ Type + Infl + Cont + Sat, housing)  
+mosaicplot(House, color = T)
+
+```
+
+
+```{r}
+# ----------------------------------------------------
+# PARTE II: REGLAS DE ASOCIACION
+# ----------------------------------------------------
+
+install.packages("arules")
+```
+
+
+```{r}
+library("arules")
+
+library(SparkR) # Para leer el df
+```
+
+
+```{fs}
+ls dbfs:/FileStore/tables/
+```
+
+```{r}
+# The applied options are for CSV files. For other file types, these will be ignored.
+titanic.df <- read.df("/FileStore/tables/Titanic.csv", source = "csv", header="true", inferSchema = "true")
+```
+
+
+```{r}
+display(titanic.df)
+```
+
+
+```{r}
+titanic.raw <- transactions(as.data.frame(titanic.df))
+```
+
+
+```{r}
+rules <- apriori(titanic.raw)
+
+```
+
+
+```{r}
+inspect(rules)
+```
+
+
+```{r}
+rules <- apriori(titanic.raw,
+  parameter = list(minlen=2, supp=0.005, conf=0.8),
+  appearance = list(rhs=c("Survived=No", "Survived=Yes"),
+  default="lhs"),
+  control = list(verbose=F))
+  
+rules.sorted <- sort(rules, by="lift")
+options(width = 300)
+inspect(rules.sorted)
+
+```
+
+
+```{r}
+subset.matrix <- is.subset(rules.sorted, rules.sorted)
+subset.matrix[lower.tri(subset.matrix, diag=T)] <- FALSE
+redundant <- colSums(subset.matrix, na.rm=T) >= 1
+options(width = 60)
+which(redundant)
+
+```
+
+
+```{r}
+rules.pruned <- rules.sorted[!redundant]
+options(width = 300)
+inspect(rules.pruned)
+```
+
+
+```{r}
+# SOLO EN ENTORNOS INTERACTIVOS - NO FUNCIONA EN DATABRICKS
+
+library("arulesViz")
+plot(rules.pruned, measure=c("support", "lift"), shading="confidence")
+plot(rules.pruned, measure=c("support", "lift"), shading="confidence",interactive=T)
+plot(rules.pruned,method="grouped")
+subrules <- rules.pruned[quality(rules.pruned)$confidence > 0.85]
+plot(subrules,method="grouped")
+inspect(subrules)
+subrules2 <- head(sort(rules, by="lift"), 10)
+plot(subrules2,method="graph")
+plot(subrules2, method="graph", control=list(type="items"))
+data("Groceries")
+summary(Groceries)
+rules <- apriori(Groceries, parameter=list(support=0.001, confidence=0.5))
+rules
+inspect(head(sort(rules, by ="lift"),3))
+plot(rules)
+head(quality(rules))
+plot(rules, measure=c("support", "lift"), shading="confidence")
+plot(rules, measure=c("support", "lift"), shading="confidence",interactive=T)
+plot(rules,method="grouped")
+subrules <- rules[quality(rules)$confidence > 0.8]
+plot(subrules,method="grouped")
+inspect(subrules)
+subrules2 <- head(sort(rules, by="lift"), 10)
+plot(subrules2,method="graph")
+
+# Solucion del ejercicio de relaciones
+plot(subrules2, method="graph", control=list(type="items"))
+```
+
+
+```{r}
+data("Groceries")
+summary(Groceries)
+```
+
+
+```{r}
+# Para chismar las reglas cuando son muchas
+# plot(rules.pruned, measure=c("support", "lift"), shading="confidence", interactive=T)
+# Reglas de asociacion
+# 
+
+#lift = diferencia entre que ocurra el referente y el noseque
+# EJERCICIO 9
+
+#a) Cuáles son las asociaciones más relevantes entre estos productos? Experimenta con diferentes valores de confianza y soporte mínimos en el algoritmo apriori.
+rules <- apriori(Groceries, parameter=list(support=0.001, confidence=0.5))
+inspect(rules)
+```
+
+
+```{r}
+#b) Elimina las reglas redundantes
+rules.pruned <- eliminateRedundancy(rules)
+inspect(rules.pruned)
+```
+
+
+```{r}
+#Opcional (no puede hacerse desde Databricks)
+
+#c) Muestra un gráfico de matriz con antecedentes agrupados para las reglas con confianza mayor que 0.8
+rules.conf <- subset(rules, confidence > 0.8)
+rules.agg <- aggregate(rules.conf, by = "lhs")
+inspect(rules.agg)
+```
+
+
+```{r}
+#d) Haz una visualización de grafo para las 10 y 100 reglas de mayor lift, donde la importancia de la asociación se muestre mediante flechas y mediante nodos.
+rules.top10 <- head(sort(rules, by = "lift"), 10)
+plot(rules.top10, type = "graph", edge.label = "lift", vertex.label = "support")
+
+#e) Discute un método para colocar en las estanterías de un centro comercial las 169 categorías de productos de forma que los productos que se adquieren juntos de forma frecuente estén próximos en la tienda.
+```
+
