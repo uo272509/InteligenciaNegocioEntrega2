@@ -335,15 +335,71 @@ El claro ganador es el método ISOF, llegando a predecir la avería con más de 
 El resto de métodos obtienen un resultado similar, aunque LOF saca un par de horas de ventaja.
 
 \section{Práctica 8}
-MS -\> Month Start
+\subsection{Ejercicio 1: ARIMA}
+\emph{ARIMA}:
+\begin{itemize}
+\item \textbf{Modelo autoregresivo}: "Voy a hacer lo de mañana sabiendo lo de hoy" (orden 1, orden 2 sería ayer y hoy, orden 3 sería anteayer, ayer y hoy ...)
+\item \textbf{Media móvil}: Anticipas el error (media de los errores) y lo sumas a todos los días
+\end{itemize}
 
-"La serie que es mejor predecir es la del logaritmo de los datos" - What??
+Arima se puede mejorar con predicción seasonal: \emph{SARIMAX} (Seasonal - ARIMA - X)
+\\
 
-ARIMA:
-- Modelo autoregresivo - "Voy a hacer lo de mañana sabiendo lo de hoy" (orden 1, orden 2 sería ayer y hoy, orden 3 sería anteayer, ayer y hoy ...)
-- Media móvil - Anticipas el error (media de los errores) y lo sumas a todos los días
+Para determinar cuáles son los parámetros que proporcionan el mejor ajuste para el modelo ARIMA, se deben comparar los valores del criterio de información de Akaike (AIC) para cada combinación de hiperparámetros. El modelo con el valor más bajo de AIC es el que proporciona el mejor ajuste.
+\\
 
-Arima se puede mejorar con predicción seasonal
-SARIMAX = Seasonal - ARIMA - X
+En este caso, los modelos ARIMA(0,1,0)x(0,1,0,12) y ARIMA(0,1,0)x(1,0,0,12) tienen los valores más bajos de AIC, con -353.4116316570383 y -382.2745551604531, respectivamente. Esto indica que estos son los modelos que proporcionan el mejor ajuste a tus datos.
+\\
 
+Es importante tener en cuenta que el AIC solo proporciona una medida relativa de la calidad del modelo y no es una medida absoluta. Por lo tanto, es posible que el modelo con el valor más bajo de AIC no sea necesariamente el mejor modelo para este conjunto de datos en particular.
+\\
+
+Por ello, tenemos que tener en  el MSE para comprobar lo ajustado que está el modelo con los hiperparámetros elegidos. En este caso:\\
+\code{
+Error cuadrático medio ARIMA 0.01\\
+Raíz cuadrada de ECM ARIMA 0.1\\
+Error porcentual medio ARIMA 1.26\\
+}
+
+\image{Predicción con ARIMA}{PL8/arima.png}
+
+\subsection{Ejercicio 2: Holt-Winters}
+El método Holt-Winters utiliza tanto tendencias como componentes estacionales para predecir valores futuros de una variable a lo largo del tiempo. Este método es comúnmente utilizado para hacer pronósticos a corto y mediano plazo y es especialmente útil para manejar datos que tienen un patrón estacional claro.
+
+\begin{center}
+\begin{tabular}{|c|c|}
+\hline
+Ventajas & Desventajas \\
+\hline
+\\
+\shortstack{Especialmente útil para manejar datos \\ que tienen un patrón estacional claro, \\ ya que tiene en cuenta explícitamente \\ los componentes estacionales en su modelo} & \shortstack{Puede tener problemas para manejar \\ series temporales con una tendencia cambiante \\ o con un comportamiento no lineal} \\
+\hline
+\\
+\shortstack{Es relativamente simple de entender y \\ puede ser fácilmente implementado \\ con herramientas estadísticas comunes} & \shortstack{Puede ser menos preciso que otros \\ métodos de pronóstico, como ARIMA, \\ para series temporales con un \\ comportamiento más complejo} \\
+\hline
+\end{tabular}
+\end{center}
+
+\image{Predicción con Holt-Winters vs. ARIMA}{PL8/holt.png}
+
+En este caso, vemos que Holt-Winters se asemeja bastante al resultado de ARIMA, aunque obtiene ligeramente mejor ajuste.
+
+\subsection{Ejercicio 3: Prophet}
+Prophet tiene una gran ventaja con ciertos tipos de datos temporales, pues utiliza un modelo basado en regresión no lineal y permite tener en cuenta efectos cíclicos y eventos puntuales en la predicción de series temporales. Sin embargo, también puede tener dificultades para manejar series temporales con un comportamiento muy complejo o con una gran cantidad de ruido.
+
+\image{Predicción con Prophet}{PL8/prophet.png}
+
+\image{Comparación de Prophet vs. ARIMA y Holt-Winters}{PL8/arimaVholtVprophet.png}
+
+En este caso podemos ver que el resultado es prácticamente el mismo que obtuvimos con Holt-Winters.
+
+\subsection{Ejercicio 4: DeepAR}
+Mientras que DeepAR es capaz de manejar series temporales con un comportamiento complejo y puede tener en cuenta efectos cíclicos y eventos puntuales en la predicción, tiene la desventaja de que puede ser más complejo de implementar y requerir más tiempo y recursos para entrenar y optimizar que otros métodos de pronóstico. Además, DeepAR puede ser menos interpretable que otros métodos de pronóstico debido a la complejidad de su modelo basado en redes neuronales.
+
+\image{Representación del modelo DeepAR}{PL8/deepar.png}
+
+\subsection{Ejercicio 5: Comparar Modelos}
+\image{Comparación de todos los modelos}{PL8/all.png}
+
+Parece que para estos datos, el más ajustado sería Holt-Winters.
 \end{document}
